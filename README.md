@@ -13,3 +13,6 @@ pip install numpy
 ```bash
 pip install pyqt5
 ```
+```bash
+pip install pyqt5-tools
+```
