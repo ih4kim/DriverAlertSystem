@@ -8,4 +8,6 @@ pip install keras
 pip install numpy
 pip install pyqt5
 pip install imageio
+pip install wget
 ```
+
