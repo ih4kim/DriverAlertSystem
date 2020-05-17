@@ -3,6 +3,7 @@ import sys
 import pdb
 import time
 import EyeIsolation
+import ClosedEyeDetection
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
@@ -97,6 +98,7 @@ class App(QWidget):
         self.show()
 
 if __name__ == '__main__':
+    model = ClosedEyeDetection.create_model()
     app = QApplication(sys.argv)
     ex = App()
     ex.show()
