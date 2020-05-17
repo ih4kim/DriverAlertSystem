@@ -1,6 +1,7 @@
 import cv2
 import sys
 import pdb
+import time
 import EyeIsolation
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
@@ -19,8 +20,10 @@ class Thread(QThread):
         ConvertToQTImage = QImage(image.data.tobytes(), width, height, QImage.Format_Grayscale8)
         scaled = ConvertToQTImage.scaled(width, height, Qt.KeepAspectRatio)
         return scaled
-
+    
     def run(self):
+        startTimer = False
+        eyesClosed = False
         while True:
             ret, frame = cap.read()
             if ret:
@@ -29,13 +32,22 @@ class Thread(QThread):
                 eyesQT = []
                 for eye in eyeImages:
                     eyesQT.append(self.convertToQT(eye))
-                #insert eye open closed detection software
+                mainCamera = self.convertToQT(grayImage)
+                self.changePixmapMainCamera.emit(mainCamera)
                 if (len(eyesQT)>0):
                     self.changePixmapEye1.emit(eyesQT[0])
                 if (len(eyesQT)>1):
                     self.changePixmapEye2.emit(eyesQT[1])
-                mainCamera = self.convertToQT(grayImage)
-                self.changePixmapMainCamera.emit(mainCamera)
+                    #eyesClosed = HeidiFunction(eyeImages)
+                    if (eyesClosed == True & startTimer == False):
+                        initTime = time.perf_counter()
+                        startTime = True
+                    elif (eyesClosed == True & startTimer == True):
+                        timePassed = time.perf_counter() - initTime
+                        if (timePassed > 5):
+                            pass #arduino function
+                    elif (eyesClosed == False):
+                        startTimer = False
 
 class App(QWidget):
     def __init__(self):
