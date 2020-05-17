@@ -15,6 +15,7 @@ def isolateEye(image):
         eyes = eye_cascade.detectMultiScale(roi_gray)
         for (ex, ey, ew, eh) in eyes:
             #cv2.rectangle(roi_color, (ex,ey), (ex+ew, ey+eh), (0,255,0),2)
+            #if (eh >70 & ew > 70):
             roi_eyes.append(roi_gray[ey:ey+eh, ex:ex+ew])
             #cv2.imshow("Eye", roi_eyes[0])
     return roi_eyes

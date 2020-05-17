@@ -1,18 +1,14 @@
 # DriverAlertSystem
 
-##System requirements:
+## System requirements:
+
 ```bash
 pip install tensorflow
-```
-```bash
 pip install keras 
-```
-```bash
 pip install numpy
-```
-```bash
 pip install pyqt5
+pip install imageio
+pip install wget
+pip install opencv-python
 ```
-```bash
-pip install pyqt5-tools
-```
+
