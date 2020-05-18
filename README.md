@@ -10,5 +10,6 @@ pip install pyqt5
 pip install imageio
 pip install wget
 pip install opencv-python
+pip install pyserial
 ```
 

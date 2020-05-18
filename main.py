@@ -26,6 +26,7 @@ class Thread(QThread):
     def run(self):
         startTimer = False
         eyesClosed = True
+        model = ClosedEyeDetection.create_model()
         while True:
             ret, frame = cap.read()
             if ret:
@@ -40,17 +41,26 @@ class Thread(QThread):
                     self.changePixmapEye1.emit(eyesQT[0])
                 if (len(eyesQT)>1):
                     self.changePixmapEye2.emit(eyesQT[1])
-                    #eyesClosed = HeidiFunction(eyeImages)
-                    if (eyesClosed == True and startTimer == False):
-                        initTime = time.perf_counter()
-                        startTimer = True
-                    elif (eyesClosed == True and startTimer == True):
-                        timePassed = time.perf_counter() - initTime
-                        if (timePassed > 5):
-                            SpraySystem.spray()
+                    tooFar = False
+                    for i, eyeImage in enumerate(eyeImages):
+                        if(eyeImage.shape <= (70,70)):
+                            print("Too far !!!!")
+                            tooFar = True
+                        else: 
+                            eyeImages[i] = ClosedEyeDetection.crop_center(eyeImages[i], 70, 70)
+                            eyeImages[i] = eyeImages[i] / 255.0
+                    if(not tooFar):
+                        eyesClosed = ClosedEyeDetection.eyeClosed(model, eyeImages)
+                        if (ClosedEyeDetection.eyeClosed(model, eyeImages) == True and startTimer == False):
+                            initTime = time.perf_counter()
+                            startTimer = True
+                        elif (ClosedEyeDetection.eyeClosed(model, eyeImages) == True and startTimer == True):
+                            timePassed = time.perf_counter() - initTime
+                            if (timePassed > 5):
+                                SpraySystem.spray()
+                                startTimer = False
+                        elif (ClosedEyeDetection.eyeClosed(model, eyeImages) == False):
                             startTimer = False
-                    elif (eyesClosed == False):
-                        startTimer = False
 
 class App(QWidget):
     def __init__(self):
@@ -100,7 +110,6 @@ class App(QWidget):
         self.show()
 
 if __name__ == '__main__':
-    #model = ClosedEyeDetection.create_model()
     app = QApplication(sys.argv)
     ex = App()
     ex.show()
