@@ -35,12 +35,16 @@ def download_dataset(rootdir):
 def create_model():
     rootdir = os.getcwd()
     download_dataset(rootdir)
+    
+    if (path.exists(rootdir + "\\closed_eye_model")):
+        loaded_model = tf.keras.models.load_model('closed_eye_model')
+        return loaded_model
 
     class_names = [0, 1] # 0 for closed, 1 for open
     #using 20000 images for training, 10000 for testing
     #the actual dataset is a lot bigger, but this seems good enough
-    train_images= np.zeros((20000,70,70))
-    train_labels = np.zeros(20000)
+    train_images= np.zeros((30000,70,70))
+    train_labels = np.zeros(30000)
     test_labels = np.zeros(10000)
     test_images = np.zeros((10000,70,70))
 
@@ -56,7 +60,7 @@ def create_model():
                 image = crop_center(image, 70, 70)
                 #ignoring ones which are smaller than 70*70 pixels
                 if(image.shape >= (70, 70)):
-                    if(index1 < 20000):
+                    if(index1 < 30000):
                         train_labels[index1] = file[16]
                         train_images[index1] = image
                         index1 += 1       
@@ -72,6 +76,7 @@ def create_model():
     train_images = train_images / 255.0
     test_images = test_images / 255.0
 
+#to see the images, 
     # plt.figure(figsize=(10,10))
     # for i in range(25):
     #     plt.subplot(5,5,i+1)
@@ -101,39 +106,28 @@ def create_model():
     print('\nTest accuracy:', test_acc)
 
     model.save('closed_eye_model') #do i need? oo i think this saves the model as a folder 
-    
-    print(type(model))
-    
-    #and using it, replace img with frame later
-    probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
-    #predictions = probability_model.predict(test_images)
-    img = test_images[1] # Grab an image from the test dataset.
-    print(img)
-    img = (np.expand_dims(img,0)) # Add the image to a batch where it's the only member.
-    predictions_single = probability_model.predict(img) # where predictions_single is an array of the confidences
-    print("SLDKFJSDLFKJSLDKFLDSFKJDSF")
-    print(np.argmax(predictions_single[0]))
-    print(predictions_single )
-    print("^^^^PREDICTION SINGLE")
-    print(test_labels[np.argmax(predictions_single[0])])
-    #class_names = [0,1]
-    print(class_names[np.argmax(predictions_single[0])])
+
+    print("finished creating model!")
     return model
 
-'''
-def checkForClosedEye(model):
-    
-    #and using it, replace img with frame later
-    probability_model = tf.keras.Sequential([model, 
-                                            tf.keras.layers.Softmax()])
-    #predictions = probability_model.predict(test_images)
-    img = model.test_images[1] # Grab an image from the test dataset.
-    img = (np.expand_dims(img,0)) # Add the image to a batch where it's the only member.
-    predictions_single = probability_model.predict(img) # where predictions_single is an array of the confidences
-    print(np.argmax(predictions_single[0]))
-    print(model.test_labels[np.argmax(predictions_single[0])])
+def eyeClosed(model, eyeImageList):
+    #eye image list is returned from eyeisolation.py, and is a list of images(pixel arrays) of a pair of eyes (so has 2 eye images)
     class_names = [0,1]
-    print(class_names[np.argmax(predictions_single[0])])'''
-    #here i also need to check the pixel size and do the cropping
-    #and just return a bool, 1 for eye open
-    #and also scale down by 255
+
+    probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
+    num_closed_eyes = 0
+    for eyeImage in eyeImageList:
+        eyeImage = (np.expand_dims(eyeImage,0)) # Add the image to a batch where it's the only member.
+        predictions_single = probability_model.predict(eyeImage)
+        if (class_names[np.argmax(predictions_single[0])] == 0):
+            num_closed_eyes += 1
+
+    if (num_closed_eyes ==2):
+        print("yes, both eye closeddd")
+        return True
+
+    elif(num_closed_eyes == 1):
+        print("WINKING")
+    else:
+        print("eye open!!!")
+        return False
