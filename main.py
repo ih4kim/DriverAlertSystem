@@ -4,6 +4,7 @@ import pdb
 import time
 import EyeIsolation
 import ClosedEyeDetection
+import SpraySystem
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
@@ -24,7 +25,7 @@ class Thread(QThread):
     
     def run(self):
         startTimer = False
-        eyesClosed = False
+        eyesClosed = True
         while True:
             ret, frame = cap.read()
             if ret:
@@ -40,13 +41,14 @@ class Thread(QThread):
                 if (len(eyesQT)>1):
                     self.changePixmapEye2.emit(eyesQT[1])
                     #eyesClosed = HeidiFunction(eyeImages)
-                    if (eyesClosed == True & startTimer == False):
+                    if (eyesClosed == True and startTimer == False):
                         initTime = time.perf_counter()
-                        startTime = True
-                    elif (eyesClosed == True & startTimer == True):
+                        startTimer = True
+                    elif (eyesClosed == True and startTimer == True):
                         timePassed = time.perf_counter() - initTime
                         if (timePassed > 5):
-                            pass #arduino function
+                            SpraySystem.spray()
+                            startTimer = False
                     elif (eyesClosed == False):
                         startTimer = False
 
@@ -98,7 +100,7 @@ class App(QWidget):
         self.show()
 
 if __name__ == '__main__':
-    model = ClosedEyeDetection.create_model()
+    #model = ClosedEyeDetection.create_model()
     app = QApplication(sys.argv)
     ex = App()
     ex.show()
