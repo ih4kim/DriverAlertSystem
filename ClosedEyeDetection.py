@@ -122,12 +122,13 @@ def eyeClosed(model, eyeImageList):
         if (class_names[np.argmax(predictions_single[0])] == 0):
             num_closed_eyes += 1
 
-    if (num_closed_eyes ==2):
+    if (num_closed_eyes == 2):
         print("yes, both eye closeddd")
         return True
 
     elif(num_closed_eyes == 1):
         print("WINKING")
+        return False
     else:
         print("eye open!!!")
         return False

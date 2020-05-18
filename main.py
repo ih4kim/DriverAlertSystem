@@ -15,11 +15,12 @@ class Thread(QThread):
     changePixmapMainCamera = pyqtSignal(QImage)
     changePixmapEye1 = pyqtSignal(QImage)
     changePixmapEye2 = pyqtSignal(QImage)
+    changeTextEyeStatus = pyqtSignal(str)
 
     def convertToQT(self, image):
         height, width = image.shape
         #bytesPerLine = width
-        ConvertToQTImage = QImage(image.data.tobytes(), width, height, QImage.Format_Grayscale8)
+        ConvertToQTImage = QImage(image.data.tobytes(), width, height, width,QImage.Format_Grayscale8)
         scaled = ConvertToQTImage.scaled(width, height, Qt.KeepAspectRatio)
         return scaled
     
@@ -30,7 +31,7 @@ class Thread(QThread):
         while True:
             ret, frame = cap.read()
             if ret:
-                grayImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
+                grayImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 eyeImages =  EyeIsolation.isolateEye(grayImage)
                 eyesQT = []
                 for eye in eyeImages:
@@ -52,14 +53,17 @@ class Thread(QThread):
                     if(not tooFar):
                         eyesClosed = ClosedEyeDetection.eyeClosed(model, eyeImages)
                         if (ClosedEyeDetection.eyeClosed(model, eyeImages) == True and startTimer == False):
+                            self.changeTextEyeStatus.emit('Eyes Closed')
                             initTime = time.perf_counter()
                             startTimer = True
                         elif (ClosedEyeDetection.eyeClosed(model, eyeImages) == True and startTimer == True):
                             timePassed = time.perf_counter() - initTime
+                            self.changeTextEyeStatus.emit('Eyes Closed')
                             if (timePassed > 5):
                                 SpraySystem.spray()
                                 startTimer = False
                         elif (ClosedEyeDetection.eyeClosed(model, eyeImages) == False):
+                            self.changeTextEyeStatus.emit('Eyes Opened')
                             startTimer = False
 
 class App(QWidget):
@@ -84,11 +88,19 @@ class App(QWidget):
     def setEye2Image(self, image):
         self.Eye2.setPixmap(QPixmap.fromImage(image))
 
+    @pyqtSlot(str)
+    def setEyeStatusLabel(self, status):
+        self.EyeStatus.setText(status)
+
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.resize(1800, 1200)
         # create a label
+
+        self.EyeStatus = QLabel(self)
+        self.EyeStatus.move(1000, 300)
+
         self.MainCamera = QLabel(self)
         self.MainCamera.move(100, 120)
 
@@ -101,11 +113,13 @@ class App(QWidget):
         self.MainCamera.resize(640, 480)
         self.Eye1.resize(100, 100)
         self.Eye2.resize(100, 100)
+        self.EyeStatus.resize(100,100)
 
         th = Thread(self)
         th.changePixmapMainCamera.connect(self.setMainCameraImage)
         th.changePixmapEye1.connect(self.setEye1Image)
         th.changePixmapEye2.connect(self.setEye2Image)
+        th.changeTextEyeStatus.connect(self.setEyeStatusLabel)
         th.start()
         self.show()
 
