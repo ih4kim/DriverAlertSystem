@@ -13,3 +13,6 @@ pip install opencv-python
 pip install pyserial
 ```
 
+If you want to see the ML model being trained, take the closed_eye_model file out of the folder and run main.py.
+
+
