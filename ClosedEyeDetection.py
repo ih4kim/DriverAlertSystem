@@ -128,7 +128,8 @@ def eyeClosed(model, eyeImageList):
 
     elif(num_closed_eyes == 1):
         print("WINKING")
-        return False
+        #return False, this just works better.... idk why....
+        return True
     else:
         print("eye open!!!")
         return False
