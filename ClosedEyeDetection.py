@@ -123,13 +123,13 @@ def eyeClosed(model, eyeImageList):
             num_closed_eyes += 1
 
     if (num_closed_eyes == 2):
-        print("yes, both eye closeddd")
+        print("both eyes closed!")
         return True
 
     elif(num_closed_eyes == 1):
-        print("WINKING")
+        print("winking!")
         #return False, this just works better.... idk why....
-        return True
+        return False
     else:
-        print("eye open!!!")
+        print("both eyes open!")
         return False

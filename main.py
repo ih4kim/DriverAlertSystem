@@ -37,7 +37,11 @@ class Thread(QThread):
         #bytesPerLine = width
         # ConvertToQTImage = QImage(image.data.tobytes(), width, height, width,QImage.Format_BGR888)
         # scaled = ConvertToQTImage.scaled(width, height, Qt.KeepAspectRatio)
-        flippedImage = cv2.flip(image, 1)
+        someosme = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # flippedImage = cv2.flip(image, 1)
+        flippedImage = cv2.flip(someosme, 1)
+
         convertToQtFormat = QImage(flippedImage.data.tobytes(), flippedImage.shape[1], flippedImage.shape[0], QImage.Format_BGR888)
         scaled = convertToQtFormat.scaled(width, height, Qt.KeepAspectRatio)
         return scaled
@@ -123,13 +127,13 @@ class App(QWidget):
             self.EyeStatus.setStyleSheet("color: red;")
         else:            
             self.EyeStatus.setText('STATUS: GOOD (BOTH EYES OPEN)')
-            self.EyeStatus.setStyleSheet("color: white;")
+            self.EyeStatus.setStyleSheet("color: black;")
 
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.resize(1450, 1000)
-        self.setStyleSheet("background-color: #343030;") 
+        self.resize(1370, 1070)
+        self.setStyleSheet("background-color: #F8F4E4;") 
         
         #creating labels (widgets)
         self.headerImage = QLabel(self)
@@ -144,14 +148,14 @@ class App(QWidget):
         self.EyeStatus.move(400, 700)
 
         self.MainCamera = QLabel(self)
-        self.MainCamera.move(480, 250)
+        self.MainCamera.move(450, 300)
 
             # self.Eye1 = QLabel(self)
             # self.Eye1.move(1000, 120)
             # self.Eye2 = QLabel(self)
             # self.Eye2.move(1000, 220)
 
-        self.MainCamera.resize(640, 350)
+        self.MainCamera.resize(640, 275)
         self.EyeStatus.resize(700, 100)
             # self.Eye1.resize(100, 100)
             # self.Eye2.resize(100, 100)
